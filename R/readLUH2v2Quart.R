@@ -44,9 +44,12 @@ readLUH2v2Quart <- function(subtype) {
     for (shift in c(c(-0.125,0.125),c(-0.125,0.125))) {
       coords_quart <- coords + shift
       # reconstruct the string names
+      row_quart <- data.frame(iso = row["iso"], coords = paste0(gsub("\\.","p",coords_quart["lon"]),".",gsub("\\.","p",coords_quart["lat"])), lon = coords_quart["lon"], lat = coords_quart["lat"])
       # add row to map_quart
+      map_quart <- rbind(map_quart, row_quart)
     }
   }
+  map <- map_quart
 
   if (grepl("states", subtype)) {
     # Open file and process information
