@@ -10,6 +10,7 @@
 #' @param cells         Switch between "magpiecell" (59199) and "lpjcell" (67420)
 #'                      NOTE: This setting also affects the sums on country level!
 #' @param selectyears   years to be returned (default: "past")
+#' @param resolution    resolution (0.25 or 0.5 degrees)
 #'
 #' @return List of magpie objects with results on country level,
 #'         weight on country level, unit and description
@@ -26,23 +27,25 @@
 #' @importFrom magpiesets findset
 
 calcLUH2v2 <- function(landuse_types = "magpie", irrigation = FALSE, # nolint
-                       cellular = FALSE, cells = "lpjcell", selectyears = "past") {
+                       cellular = FALSE, cells = "lpjcell", selectyears = "past", resolution = 0.5) {
 
   selectyears <- sort(findset(selectyears, noset = "original"))
+  sourceVersion <- "LUH2v2"
+  if (resolution == 0.25) sourceVersion <- "LUH2v2quart"
 
   if (!all(landuse_types %in% c("magpie", "LUH2v2", "flooded"))) {
     stop("Unknown lanuses_types = \"", landuse_types, "\"")
   }
 
   if (landuse_types == "flooded") {
-    x <- readSource("LUH2v2", subtype = "irrigation", convert = "onlycorrect")[, selectyears, "flood"]
+    x <- readSource(sourceVersion, subtype = "irrigation", convert = "onlycorrect")[, selectyears, "flood"]
   } else {
-    x <- readSource("LUH2v2", subtype = "states", convert = "onlycorrect")[, selectyears, ]
+    x <- readSource(sourceVersion, subtype = "states", convert = "onlycorrect")[, selectyears, ]
     getSets(x, fulldim = FALSE)[3] <- "landuse"
 
     if (isTRUE(irrigation)) {
 
-      irrigLUH <- readSource("LUH2v2", subtype = "irrigation", convert = "onlycorrect")[, selectyears, ]
+      irrigLUH <- readSource(sourceVersion, subtype = "irrigation", convert = "onlycorrect")[, selectyears, ]
 
       if (is.null(selectyears)) {
         vcat(verbosity = 3, "too many years may lead to memory problems if irrigation = TRUE")
