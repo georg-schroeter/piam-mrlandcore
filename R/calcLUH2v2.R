@@ -30,22 +30,20 @@ calcLUH2v2 <- function(landuse_types = "magpie", irrigation = FALSE, # nolint
                        cellular = FALSE, cells = "lpjcell", selectyears = "past", resolution = 0.5) {
 
   selectyears <- sort(findset(selectyears, noset = "original"))
-  sourceVersion <- "LUH2v2"
-  if (resolution == 0.25) sourceVersion <- "LUH2v2"
 
   if (!all(landuse_types %in% c("magpie", "LUH2v2", "flooded"))) {
     stop("Unknown lanuses_types = \"", landuse_types, "\"")
   }
 
   if (landuse_types == "flooded") {
-    x <- readSource(sourceVersion, subtype = "irrigation", convert = "onlycorrect")[, selectyears, "flood"]
+    x <- readSource("LUH2v2", subtype = "irrigation", convert = "onlycorrect")[, selectyears, "flood"]
   } else {
-    x <- readSource(sourceVersion, subtype = "states", convert = "onlycorrect")[, selectyears, ]
+    x <- readSource("LUH2v2", subtype = "states", convert = "onlycorrect")[, selectyears, ]
     getSets(x, fulldim = FALSE)[3] <- "landuse"
 
     if (isTRUE(irrigation)) {
 
-      irrigLUH <- readSource(sourceVersion, subtype = "irrigation", convert = "onlycorrect")[, selectyears, ]
+      irrigLUH <- readSource("LUH2v2", subtype = "irrigation", convert = "onlycorrect")[, selectyears, ]
 
       if (is.null(selectyears)) {
         vcat(verbosity = 3, "too many years may lead to memory problems if irrigation = TRUE")
