@@ -31,7 +31,7 @@ calcLUH2v2 <- function(landuse_types = "magpie", irrigation = FALSE, # nolint
 
   selectyears <- sort(findset(selectyears, noset = "original"))
   sourceVersion <- "LUH2v2"
-  if (resolution == 0.25) sourceVersion <- "LUH2v2quart"
+  if (resolution == 0.25) sourceVersion <- "LUH2v2"
 
   if (!all(landuse_types %in% c("magpie", "LUH2v2", "flooded"))) {
     stop("Unknown lanuses_types = \"", landuse_types, "\"")

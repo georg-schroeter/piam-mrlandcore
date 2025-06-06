@@ -9,7 +9,8 @@ calcLUH2v2(
   irrigation = FALSE,
   cellular = FALSE,
   cells = "lpjcell",
-  selectyears = "past"
+  selectyears = "past",
+  resolution = 0.5
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ if false: total areas}
 NOTE: This setting also affects the sums on country level!}
 
 \item{selectyears}{years to be returned (default: "past")}
+
+\item{resolution}{resolution (0.25 or 0.5 degrees)}
 }
 \value{
 List of magpie objects with results on country level,

@@ -1,4 +1,4 @@
-#' @title readLUH2v2
+#' @title readLUH2v2Quart
 #' @description read LUH inputs
 #'
 #' @param subtype switch between different inputs
@@ -13,7 +13,7 @@
 #' @importFrom withr local_tempdir defer
 #' @importFrom stringr str_match str_count str_subset
 
-readLUH2v2 <- function(subtype) {
+readLUH2v2 <- function(subtype) {# nolint
   # set terra options and temporary directory
   terraOptions(tempdir = local_tempdir(tmpdir = getConfig("tmpfolder")), todisk = TRUE, memfrac = 0.25)
   defer(terraOptions(tempdir = tempdir()))
@@ -36,6 +36,23 @@ readLUH2v2 <- function(subtype) {
   ### Define dimensions
   map <- toolGetMappingCoord2Country(pretty = TRUE)
 
+  ### Double the mapping resolution while keeping
+  mapQuart <- map[FALSE, ]
+  for (i in rownames(map)) {
+    row <- map[i, ]
+    coords <- row[c("lon", "lat")]
+    for (shift in list(c(-0.125, -0.125), c(-0.125, 0.125), c(0.125, -0.125), c(0.125, 0.125))) {
+      coordsQuart <- coords + shift
+      # reconstruct the string names
+      rowQuart <- data.frame(iso = row["iso"], coords = paste0(gsub("\\.", "p", coordsQuart["lon"]), ".",
+                                                               gsub("\\.", "p", coordsQuart["lat"])),
+                             lon = coordsQuart["lon"], lat = coordsQuart["lat"])
+      # add row to mapQuart
+      mapQuart <- rbind(mapQuart, rowQuart)
+    }
+  }
+  map <- mapQuart
+
   if (grepl("states", subtype)) {
     # Open file and process information
     ncFile <- nc_open(fStates)
@@ -50,7 +67,7 @@ readLUH2v2 <- function(subtype) {
       shr <- suppressWarnings(subset(rast(fStates, subds = item), timeSel - offset))
       checkSum <- terra::global(shr * carea, sum, na.rm = TRUE)
       # aggregate from 0.25 degree to 0.5 degree
-      mag <- terra::aggregate(shr * carea, fact = 2, fun = sum, na.rm = TRUE)
+      mag <- terra::aggregate(shr * carea, fact = 1, fun = sum, na.rm = TRUE)
       # Check whether sum before and after aggregation is the same.
       # Note: unit is km^2, so only rounded to first digit
       if (any(round(checkSum - terra::global(mag, sum, na.rm = TRUE), digits = 1) != 0)) {
@@ -99,7 +116,7 @@ readLUH2v2 <- function(subtype) {
         shr <- suppressWarnings(subset(rast(fTrans, subds = luTrans[item]), timeSel - offset - 1))
         checkSum <- terra::global(shr * carea, sum, na.rm = TRUE)
         # aggregate from 0.25 degree to 0.5 degree
-        mag <- terra::aggregate(shr * carea, fact = 2, fun = sum, na.rm = TRUE)
+        mag <- terra::aggregate(shr * carea, fact = 1, fun = sum, na.rm = TRUE)
         # Check whether sum before and after aggregation is the same.
         # Note: unit is km^2, so only rounded to first digit
         if (any(round(checkSum - terra::global(mag, sum, na.rm = TRUE), digits = 1) != 0)) {
@@ -142,7 +159,7 @@ readLUH2v2 <- function(subtype) {
       }
       checkSum <- terra::global(tmp, sum, na.rm = TRUE)
       # aggregate from 0.25 degree to 0.5 degree
-      mag <- terra::aggregate(tmp, fact = 2, fun = sum, na.rm = TRUE)
+      mag <- terra::aggregate(tmp, fact = 1, fun = sum, na.rm = TRUE)
       # Check whether sum before and after aggregation is the same.
       # Note: unit is km^2, so only rounded to first digit
       if (any(round(checkSum - terra::global(mag, sum, na.rm = TRUE), digits = 1) != 0)) {

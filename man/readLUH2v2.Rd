@@ -2,7 +2,7 @@
 % Please edit documentation in R/readLUH2v2.R
 \name{readLUH2v2}
 \alias{readLUH2v2}
-\title{readLUH2v2}
+\title{readLUH2v2Quart}
 \usage{
 readLUH2v2(subtype)
 }
